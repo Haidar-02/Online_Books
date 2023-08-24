@@ -3,45 +3,80 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/users.model");
 
 const login = async (req, res) => {
-  const { email: login, password } = req.body;
-  const user = await User.findOne({ email: login });
-  if (!user)
-    return res.status(404).send({ message: "email/password incorrect" });
-  const isValid = await bcrypt.compare(password, user.password);
-  if (!isValid)
-    return res.status(404).send({ message: "email/password incorrect" });
+  try {
+    const { email: login, password } = req.body;
 
-  const {
-    password: hashedPassword,
-    name,
-    email,
-    _id,
-    ...userInfo
-  } = user.toJSON();
-  const token = jwt.sign({ name, email, _id }, process.env.JWT_SECRET);
+    if (!login) {
+      return res.status(400).send({ error: "Email is required" });
+    }
+    if (!password) {
+      return res.status(400).send({ error: "Password is required" });
+    }
 
-  res.send({
-    token,
-    user: userInfo,
-  });
+    const user = await UserModel.findOne({ email: login }).select("+password");
+    if (!user)
+      return res.status(404).send({ error: "email/password incorrect" });
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid)
+      return res.status(404).send({ error: "email/password incorrect" });
+
+    const {
+      password: hashedPassword,
+      name,
+      email,
+      _id,
+      ...userInfo
+    } = user.toJSON();
+    const token = jwt.sign({ name, email, _id }, process.env.JWT_SECRET);
+
+    return res.send({
+      token,
+      user: {
+        name,
+        email,
+        _id,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send();
+  }
 };
 
 const register = async (req, res) => {
-  const { password } = req.body;
+  try {
+    const { body } = req;
+    const { name, email, password } = body;
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({
-    ...req.body,
-    password: hashedPassword,
-  });
+    if (!name) {
+      return res.status(400).send({ error: "Name is required" });
+    }
+    if (!email) {
+      return res.status(400).send({ error: "Email is required" });
+    }
+    if (!password) {
+      return res.status(400).send({ error: "Password is required" });
+    } else if (password.length < 6) {
+      return res.status(400).send({ error: "Password too short" });
+    }
 
-  user.save();
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  res.send(user);
+    const user = new UserModel({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    await user.save();
+    return res.status(200).send({ message: "User successfully registered." });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).send({ error: "Email already exists" });
+    }
+    return res.status(500).send(error);
+  }
 };
 
-const verify = (_, res) => {
-  res.send("Verfied");
-};
-
-module.exports = { login, register, verify };
+module.exports = { login, register };

@@ -1,18 +1,18 @@
 const mongoose = require("mongoose");
 
-const usersSchema = new mongoose.Schema(
-  {
-    name: String,
-    email: {
-      type: String,
-      unique: true,
-    },
-    password: String,
+const UserSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: {
+    type: String,
+    index: true,
+    lowercase: true,
+    required: true,
+    unique: true,
+    match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}/,
   },
-  {
-    timestamps: true,
-  }
-);
+  password: { type: String, required: true, minlength: 6 },
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+});
 
-const model = mongoose.model("User", usersSchema);
+const model = mongoose.model("User", UserSchema);
 module.exports = model;
