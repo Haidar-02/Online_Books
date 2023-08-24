@@ -1,23 +1,25 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+
+const mongodbConnection = require("./configs/mongoDB.connect.js");
+const { config } = require("dotenv");
+config();
+
 const app = express();
-const mongooseConnect = require("./configs/mongoDB.connect");
-require("dotenv").config();
+
+app.use(bodyParser.json());
 
 app.use(express.json());
+app.use(cors());
 
-const authMiddleware = require("./middlewares/auth.middleware");
+const usersRoutes = require("./routes/users.route.js");
+app.use("/users", usersRoutes);
 
-const authRouter = require("./routes/auth.routes");
-app.use("/auth", authRouter);
+const authRoutes = require("./routes/auth.route.js");
+app.use("/auth", authRoutes);
+mongodbConnection();
 
-const usersRouter = require("./routes/users.routes");
-app.use("/users", authMiddleware, usersRouter);
-
-app.listen(8000, (err) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log("server running on port: ", 8000);
-  mongooseConnect();
+app.listen(8080, () => {
+  console.log("Server running on http://127.0.0.1:8080/");
 });

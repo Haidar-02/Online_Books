@@ -1,0 +1,13 @@
+.form-group {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+.background {
+  background-image: url("../../Assets/landing.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
