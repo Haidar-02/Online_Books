@@ -26,8 +26,9 @@ const SigninForm = () => {
       return;
     }
     if (data) {
+      console.log(data);
       setErrors("");
-      localStorage.setItem("userInfo", JSON.stringify(data));
+      localStorage.setItem("token", data.token);
       navigate("/dashboard");
     }
   }

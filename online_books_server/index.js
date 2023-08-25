@@ -2,6 +2,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+const UserModel = require("./models/users.model");
+
 const mongodbConnection = require("./configs/mongoDB.connect.js");
 const { config } = require("dotenv");
 config();

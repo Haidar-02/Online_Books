@@ -46,8 +46,8 @@ const login = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const { body } = req;
-    const { name, email, password } = body;
+    const { name, email, password } = req.body;
+    console.log(req.body);
 
     if (!name) {
       return res.status(400).send({ error: "Name is required" });
@@ -75,7 +75,7 @@ const register = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).send({ error: "Email already exists" });
     }
-    return res.status(500).send(error);
+    return res.status(500).send({ error: "Internal server error" });
   }
 };
 

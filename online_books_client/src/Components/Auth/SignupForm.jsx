@@ -19,12 +19,14 @@ const SignupForm = () => {
   }
 
   async function handlesignUp() {
-    const { data, error } = await register(inputState);
-    if (error) {
-      setErrors(error);
-      return;
+    try {
+      const response = await register(inputState);
+      navigate("/");
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+      setErrors("Error Registering :", error);
     }
-    navigate("/");
   }
 
   const { name, email, password } = inputState;

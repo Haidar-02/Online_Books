@@ -1,0 +1,16 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 20px;
+}
+.form-element {
+  outline: none;
+  border: 2px solid rgb(202 138 4);
+  transition: 0.2s;
+  font-size: 14px;
+}
+.form-element:focus {
+  border: 2px solid rgb(56, 56, 56);
+}
