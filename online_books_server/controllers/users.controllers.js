@@ -3,8 +3,26 @@ const mongoose = require("mongoose");
 
 const getAllBooks = async (req, res) => {
   try {
+    const currentUser = await User.findById(req.user._id); // Get current user's information
     const books = await Book.find().populate("createdBy", "name email");
-    res.status(200).json(books);
+
+    const booksWithFlags = books.map((book) => {
+      const isFollowing = currentUser.following.some(
+        (followingUserId) =>
+          followingUserId.toString() === book.createdBy._id.toString()
+      );
+      const isLiked = currentUser.likes.some(
+        (likedBookId) => likedBookId.toString() === book._id.toString()
+      );
+
+      return {
+        ...book.toObject(),
+        is_following: isFollowing,
+        is_liked: isLiked,
+      };
+    });
+
+    res.status(200).json(booksWithFlags);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -224,6 +242,45 @@ const search = async (req, res) => {
   }
 };
 
+const getBookById = async (req, res) => {
+  try {
+    const bookId = req.params.bookId;
+
+    const user = req.user;
+    const currentUser = await User.findById(user._id);
+    const { following } = currentUser;
+
+    const bookInfo = await Book.findById(bookId).populate(
+      "createdBy",
+      "name email"
+    );
+
+    if (!bookInfo) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+    const isLiked = currentUser.likes.some(
+      (e) => e.toString() === bookInfo._id.toString()
+    );
+    const isFollowing = currentUser.following.some(
+      (e) => e.toString() === bookInfo.createdBy._id.toString()
+    );
+    const response = {
+      bookInfo,
+      isFollowing,
+      isLiked,
+    };
+
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = {
+  getBookById,
+};
+
 module.exports = {
   followUser,
   postBook,
@@ -232,4 +289,5 @@ module.exports = {
   discoverBooks,
   search,
   getAllBooks,
+  getBookById,
 };

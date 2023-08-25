@@ -11,6 +11,7 @@ router.post("/like/:bookId", authMiddleware, userController.likeBook);
 router.get("/getAllFollowed", authMiddleware, userController.getAllFollowed);
 router.get("/getAllBooks", authMiddleware, userController.getAllBooks);
 router.get("/discover", authMiddleware, userController.discoverBooks);
+router.get("/getBookById/:bookId", authMiddleware, userController.getBookById);
 router.get("/search/", authMiddleware, userController.search);
 
 module.exports = router;

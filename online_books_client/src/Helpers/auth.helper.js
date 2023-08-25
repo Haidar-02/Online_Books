@@ -2,7 +2,7 @@ import axios from "axios";
 const baseUrl = "http://127.0.0.1:8080/";
 
 const auth = () => {
-  const { token } = JSON.parse(localStorage.getItem("token"));
+  const token = localStorage.getItem("token");
   return {
     headers: { Authorization: `Bearer ${token}` },
   };
@@ -21,6 +21,7 @@ async function logIn({ email, password }) {
     });
     console.log(res.data);
     if (res.status === 200) {
+      localStorage.setItem("token", res.data.token);
       const data = res.data;
       return { data };
     }
