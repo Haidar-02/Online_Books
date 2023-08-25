@@ -1,7 +1,14 @@
-const UserModel = require("../models/users.model.js");
-
-const { Book } = require("../models/book.model.js");
+const { User, Book } = require("../models/users.model.js");
 const mongoose = require("mongoose");
+
+const getAllBooks = async (req, res) => {
+  try {
+    const books = await Book.find().populate("createdBy", "name email");
+    res.status(200).json(books);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 const followUser = async (req, res) => {
   try {
@@ -9,8 +16,8 @@ const followUser = async (req, res) => {
 
     const currentUserId = req.user._id;
 
-    const targetUser = await UserModel.findById(targetUserId);
-    const currentUser = await UserModel.findById(currentUserId);
+    const targetUser = await User.findById(targetUserId);
+    const currentUser = await User.findById(currentUserId);
     if (!targetUser) {
       return res.status(404).send({ message: "User not found" });
     }
@@ -26,10 +33,10 @@ const followUser = async (req, res) => {
       const filtered = following.filter((e) => !e.equals(targetUser._id));
       currentUser.following = filtered;
 
-      status = `unliked ${targetUser.name}`;
+      status = `UnFollowed ${targetUser.name}`;
     } else {
       currentUser.following = [...following, targetUser._id];
-      status = `liked ${targetUser.name}`;
+      status = `Followed ${targetUser.name}`;
     }
     await currentUser.save();
     return res.status(200).send({ message: status });
@@ -45,7 +52,7 @@ const likeBook = async (req, res) => {
     const currentUserId = req.user._id;
 
     const targetBook = await Book.findById(targetBookId);
-    const currentUser = await UserModel.findById(currentUserId);
+    const currentUser = await User.findById(currentUserId);
     if (!targetBook) {
       return res.status(404).send({ error: "Book not found" });
     }
@@ -76,9 +83,9 @@ const likeBook = async (req, res) => {
 
 const postBook = async (req, res) => {
   try {
-    const { title, author, picture, genres, review } = req.body;
+    const { title, author, image, genre, review } = req.body;
 
-    if (!title || !author || !picture || !genres || !review) {
+    if (!title || !author || !image || !genre || !review) {
       return res.status(400).send({ error: "All fields are required" });
     }
 
@@ -87,15 +94,15 @@ const postBook = async (req, res) => {
     const newBook = new Book({
       title,
       author,
-      picture,
-      genres,
+      image,
+      genre,
       review,
       createdBy: new mongoose.Types.ObjectId(user._id),
     });
 
     newBook.save();
 
-    const updatedUser = await UserModel.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       user._id,
       { $push: { books: newBook._id } },
       { new: true }
@@ -122,45 +129,12 @@ const postBook = async (req, res) => {
 const getAllFollowed = async (req, res) => {
   try {
     const user = req.user;
-    const currentUser = await UserModel.findById(user._id);
+    const currentUser = await User.findById(user._id);
     const response = [];
 
     const { following } = currentUser;
 
     const books = await Book.find({ createdBy: { $in: following } }).populate(
-      "createdBy",
-      "name email"
-    );
-
-    books.forEach((book) => {
-      const isLiked = currentUser.likes.find(
-        (e) => e.toString() === book._id.toString()
-      );
-      const isFollowing = currentUser.following.find(
-        (e) => e.toString() === book.createdBy._id.toString()
-      );
-      response.push({
-        book,
-        isFollowing: isFollowing ? true : false,
-        isLiked: isLiked ? true : false,
-      });
-    });
-    console.log(response);
-    return res.status(200).send(response);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getAllLiked = async (req, res) => {
-  try {
-    const user = req.user;
-    const currentUser = await UserModel.findById(user._id);
-    const response = [];
-
-    const { likes } = currentUser;
-
-    const books = await Book.find({ _id: { $in: likes } }).populate(
       "createdBy",
       "name email"
     );
@@ -206,7 +180,7 @@ const search = async (req, res) => {
     const { genre, author, keywords } = req.query;
     const user = req.user;
     console.log(keywords);
-    const currentUser = await UserModel.findById(user._id);
+    const currentUser = await User.findById(user._id);
 
     const query = {};
 
@@ -255,7 +229,7 @@ module.exports = {
   postBook,
   likeBook,
   getAllFollowed,
-  getAllLiked,
   discoverBooks,
   search,
+  getAllBooks,
 };

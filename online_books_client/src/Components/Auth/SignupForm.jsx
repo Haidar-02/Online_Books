@@ -18,22 +18,21 @@ const SignupForm = () => {
     setInputState((prev) => ({ ...prev, [name]: value }));
     setErrors({
       ...errors,
-      [name]: "", // Clear error message for the current field
+      [name]: "",
     });
   }
 
   async function handlesignUp() {
     try {
-      const response = await register(
-        inputState.name,
-        inputState.email,
-        inputState.password
-      );
+      const userData = {
+        name: inputState.name,
+        email: inputState.email,
+        password: inputState.password,
+      };
+      const response = await register(userData);
       console.log(response);
-      if (response.data) {
-        navigate("/");
-        console.log(response);
-      }
+      navigate("/");
+      console.log(response);
     } catch (error) {
       console.log(error);
       setErrors({

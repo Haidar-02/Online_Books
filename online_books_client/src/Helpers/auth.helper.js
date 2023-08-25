@@ -28,12 +28,10 @@ async function logIn({ email, password }) {
     console.log(err);
   }
 }
-async function register({ name, email, password }) {
+async function register({ userData }) {
   try {
     const res = await axios.post(`${baseUrl}auth/register`, {
-      name,
-      email,
-      password,
+      userData,
     });
     console.log(res.data);
     if (res.status === 200) {

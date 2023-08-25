@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/users.model");
+const { User } = require("../models/users.model");
 
 const login = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ const login = async (req, res) => {
       return res.status(400).send({ error: "Password is required" });
     }
 
-    const user = await UserModel.findOne({ email: login }).select("+password");
+    const user = await User.findOne({ email: login }).select("+password");
     if (!user)
       return res.status(404).send({ error: "email/password incorrect" });
 
@@ -63,7 +63,7 @@ const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new UserModel({
+    const user = new User({
       name,
       email,
       password: hashedPassword,
@@ -75,6 +75,7 @@ const register = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).send({ error: "Email already exists" });
     }
+    console.log(error);
     return res.status(500).send({ error: "Internal server error" });
   }
 };

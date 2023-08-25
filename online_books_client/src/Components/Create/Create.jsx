@@ -57,8 +57,7 @@ const Create = () => {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
     } else {
-      // All fields are valid, you can proceed with submitting the data
-      // You can also reset the form, clear fields, etc.
+      //proceed with submitting the data
     }
   };
 
