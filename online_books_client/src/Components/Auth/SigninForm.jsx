@@ -19,17 +19,22 @@ const SigninForm = () => {
   }
 
   async function handleSignIn() {
-    const { data, error } = await logIn(inputState);
-    console.log(error);
-    if (error) {
-      setErrors(error);
-      return;
-    }
-    if (data) {
-      console.log(data);
-      setErrors("");
-      localStorage.setItem("token", data.token);
-      navigate("/dashboard");
+    try {
+      const { data, error } = await logIn(inputState);
+      console.log(error);
+      if (error) {
+        setErrors(error);
+        return;
+      }
+      if (data) {
+        console.log(data);
+        setErrors("");
+        localStorage.setItem("token", data.token);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+      setErrors("incorrect email or password");
     }
   }
 
@@ -44,7 +49,7 @@ const SigninForm = () => {
         <p className="text-sm text-gray-500 text-center mt-2">
           Please sign in order to explore books that you love{" "}
         </p>
-        <div className="form-group mt-7">
+        <div className="mt-7">
           <label htmlFor="email" className="text-sm text-yellow-700">
             ~ email
           </label>
@@ -55,10 +60,10 @@ const SigninForm = () => {
             onChange={onChange}
             value={email}
             placeholder="email here"
-            className="px-2 py-2 outline-none border border-gray-700 w-full focus:border-yellow-700 rounded-sm bg-gray-100"
+            className="p-2 outline-none border border-gray-700 w-full focus:border-yellow-700 rounded-sm bg-gray-100"
           />
         </div>
-        <div className="form-group mt-3">
+        <div className="mt-3">
           <label htmlFor="password" className="text-sm text-yellow-700">
             ~ password
           </label>
