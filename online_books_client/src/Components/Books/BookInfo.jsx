@@ -12,8 +12,8 @@ const BookInfo = () => {
   useEffect(() => {
     async function fetchBookDetails() {
       try {
-        const bookData = await getBookById(bookId);
-        setBookInfo(bookData);
+        const bookData = await getBookById(bookId.id);
+        setBookInfo(bookData.bookInfo);
       } catch (error) {
         console.log(error);
       }
@@ -24,6 +24,7 @@ const BookInfo = () => {
   if (!bookInfo) {
     return <div>Loading...</div>;
   }
+  console.log(bookInfo);
 
   return (
     <div className="p-16 bg-gray-100">
@@ -42,7 +43,7 @@ const BookInfo = () => {
         <div className="flex">
           <div>
             <img
-              src={bookInfo.picture}
+              src=""
               alt="Book Preview"
               className="aspect-square w-[700px] object-cover rounded-sm"
             />
@@ -58,9 +59,6 @@ const BookInfo = () => {
             </div>
             <p className="mt-2">
               Review By <strong>{bookInfo.createdBy.name}</strong>
-              <button className="ml-2 px-3 py-1 bg-blue-500 hover:opacity-75 text-white rounded-md">
-                Follow
-              </button>
             </p>
             <div className="mt-2">
               <p className="text-lg text-yellow-700">Genre</p>
@@ -74,11 +72,6 @@ const BookInfo = () => {
               <FavoriteIcon
                 className={`mt-5 cursor-pointer text-cursor-pointer hover:text-red-500 transition-all`}
               />
-              <div>
-                <strong className="text-red-500">
-                  {bookInfo.likes.length} people
-                </strong>
-              </div>
             </div>
           </div>
         </div>
