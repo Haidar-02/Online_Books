@@ -15,7 +15,6 @@ const FollowingsList = () => {
   useEffect(() => {
     fetchFollowedBooks();
   }, []);
-  console.log(followedBooks);
 
   return (
     <div>
